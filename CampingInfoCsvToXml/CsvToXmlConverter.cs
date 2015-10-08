@@ -112,7 +112,7 @@ namespace CampingInfoCsvToXml {
                                 if (!string.IsNullOrEmpty(value)) {
                                     text += "\t" + value;
                                 }
-                                node.Value = text;
+                                node.SetValue(text);
                             }
                         }
                         Console.WriteLine();

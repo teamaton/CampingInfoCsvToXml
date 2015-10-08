@@ -24,7 +24,8 @@ namespace CampingInfoCsvToXml {
                     .Replace("</Street><StreetNo>", "</Street> <StreetNo>")
                     .Replace("</ZipCode><Town>", "</ZipCode> <Town>")
                     .Replace("</GeoLatitude><GeoLongitude>", "</GeoLatitude>&#x20;&#x20;<GeoLongitude>")
-                    .Replace("/><Fkk", "/>&#x20;&#x20;<Fkk");
+                    .Replace("/><Fkk", "/>&#x20;&#x20;<Fkk")
+                    .Replace("lt. Bewertung von ", "\u2029lt. Bewertung von\u2029");
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
                 File.WriteAllText(counter + ".xml", contents, Encoding.UTF8);
                 counter++;
