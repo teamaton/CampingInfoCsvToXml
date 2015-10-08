@@ -59,17 +59,15 @@ namespace CampingInfoCsvToXml {
                         string value = null;
 
                         {
-                            var hrefColumn = columnName + "Href";
                             var valueColumn = columnName + "Value";
 
-                            if (table.Columns.Contains(hrefColumn)) {
-                                href = tableRow[hrefColumn].ToString();
-                            }
-                            else if (table.Columns.Contains(valueColumn)) {
-                                value = tableRow[valueColumn].ToString();
-                                if (value.IsImage()) {
-                                    href = value;
-                                    value = null;
+                            if (table.Columns.Contains(valueColumn)) {
+                                var raw = tableRow[valueColumn].ToString();
+                                if (raw.IsImage()) {
+                                    href = raw;
+                                }
+                                else {
+                                    value = raw;
                                 }
                             }
                         }
@@ -84,7 +82,7 @@ namespace CampingInfoCsvToXml {
                         if (columnName.StartsWith("RatingAvg") && columnName != "RatingAvgOverall") {
                             // text is something like balken_39.ai
                             // extract rating value from it
-                            var ratingValue = text.Substring(7, 2).Insert(1, ".");
+                            var ratingValue = text.Substring(7, 2).Insert(1, ",");
                             href = "file://Bilder/" + text;
                             var graphicNode = columnName + "Graphic";
 
@@ -98,7 +96,7 @@ namespace CampingInfoCsvToXml {
                                 <Imbiss href="file://Bilder/Yes.ai" />
                             </Imbiss>
                          */
-                        else if (href != null) {
+                        else if (!string.IsNullOrEmpty(href)) {
                             href = "file://Bilder/" + href;
                             node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
@@ -111,7 +109,7 @@ namespace CampingInfoCsvToXml {
                             }
                             else {
                                 // append value after TAB
-                                if (value != null) {
+                                if (!string.IsNullOrEmpty(value)) {
                                     text += "\t" + value;
                                 }
                                 node.Value = text;

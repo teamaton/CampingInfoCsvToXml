@@ -138,7 +138,25 @@ namespace CampingInfoCsvToXml {
             var fileName = new FileInfo("tmp.csv").ToString();
             var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4.3</RatingAvgSth>"));
+            Assert.That(xmlResult, Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4,3</RatingAvgSth>"));
+        }
+
+        [Test]
+        public void convert_column_with_text_and_empty_value_column_to_node_with_text() {
+            var csv = "Stars;StarsValue" + Environment.NewLine +
+                      "noch keine;";
+            var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Root>
+  <cell>
+    <Stars></Stars>
+  </cell>
+</Root>";
+            File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
+            var fileName = new FileInfo("tmp.csv").ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            Console.WriteLine(xmlResult);
+            Assert.That(xmlResult, Is.StringContaining("<Stars>noch keine</Stars>"));
         }
     }
 }
