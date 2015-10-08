@@ -17,7 +17,7 @@ namespace CampingInfoCsvToXml {
             var fileName = new FileInfo("tmp.csv").ToString();
             var xmlResult = new CsvToXmlConverter(xml).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"Wert.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file://Bilder/Wert.ai\" />"));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace CampingInfoCsvToXml {
             var xmlResult = new CsvToXmlConverter(xml).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
-            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"bild.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file://Bilder/bild.ai\" />"));
         }
 
         [Test]
@@ -65,9 +65,9 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_and_neighbor_to_nested_node_with_value_and_href() {
-            var csv = "Lebensmittelversorgung;LebensmittelversorgungHref" + Environment.NewLine +
-                      "Lebensmittel am Platz;file://Bilder/Yes.ai";
+        public void convert_column_and_image_neighbor_to_nested_node_with_value_and_href() {
+            var csv = "Lebensmittelversorgung;LebensmittelversorgungValue" + Environment.NewLine +
+                      "Lebensmittel am Platz;Yes.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
   <cell>
@@ -84,6 +84,61 @@ namespace CampingInfoCsvToXml {
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining(
                 @"<Lebensmittelversorgung>Lebensmittel am Platz<Lebensmittelversorgung href=""file://Bilder/Yes.ai"" /></Lebensmittelversorgung>"));
+        }
+
+        [Test]
+        public void convert_column_and_value_neighbor_to_nested_node_with_only_value() {
+            var csv = "Lebensmittelversorgung;LebensmittelversorgungValue" + Environment.NewLine +
+                      "Lebensmittel am Platz;200 m";
+            var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Root>
+  <cell>
+    <Lebensmittelversorgung></Lebensmittelversorgung>
+  </cell>
+</Root>";
+            File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
+            var fileName = new FileInfo("tmp.csv").ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            Console.WriteLine(xmlResult);
+            Assert.That(xmlResult, Is.StringContaining(
+                "<Lebensmittelversorgung>Lebensmittel am Platz\t200 m</Lebensmittelversorgung>"));
+        }
+
+        [Test]
+        public void convert_column_and_neighbor_to_node_with_tabbed_text() {
+            var csv = "Activity1;Activity1Value" + Environment.NewLine +
+                      "Schwimmen;55 %";
+            var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Root>
+  <cell>
+    <Activity1></Activity1>
+  </cell>
+</Root>";
+            File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
+            var fileName = new FileInfo("tmp.csv").ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            Console.WriteLine(xmlResult);
+            Assert.That(xmlResult, Is.StringContaining("<Activity1>Schwimmen\t55 %</Activity1>"));
+        }
+
+        [Test]
+        public void convert_rating_column_to_nested_node_with_graphic_and_value() {
+            var csv = "RatingAvgSth" + Environment.NewLine +
+                      "balken_43.ai";
+            var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Root>
+  <cell>
+    <RatingAvgSth></RatingAvgSth>
+  </cell>
+</Root>";
+            File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
+            var fileName = new FileInfo("tmp.csv").ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            Console.WriteLine(xmlResult);
+            Assert.That(xmlResult, Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4.3</RatingAvgSth>"));
         }
     }
 }

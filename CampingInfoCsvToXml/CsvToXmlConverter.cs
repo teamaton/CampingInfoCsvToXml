@@ -34,7 +34,7 @@ namespace CampingInfoCsvToXml {
 
             foreach (DataRow tableRow in table.Rows) {
                 if (columns.Contains("Name")) {
-                    Console.Write("processing campsite: \"{0}\"", tableRow["Name"]);
+                    Console.WriteLine("processing campsite: \"{0}\"", tableRow["Name"]);
                 }
                 var xDocument = GetFreshDocument();
 
@@ -46,26 +46,75 @@ namespace CampingInfoCsvToXml {
                         if (columnName.EndsWith("Href")) {
                             Console.WriteLine(" - href");
                         }
+                        else if (columnName.EndsWith("Value")) {
+                            Console.WriteLine(" - value");
+                        }
                         else {
                             Console.WriteLine(" - NOT FOUND!");
                         }
                     }
                     else {
-                        var value = tableRow[columnName].ToString();
+                        var text = tableRow[columnName].ToString();
                         string href = null;
-                        if (table.Columns.Contains(columnName + "Href")) {
-                            href = tableRow[columnName + "Href"].ToString();
+                        string value = null;
+
+                        {
+                            var hrefColumn = columnName + "Href";
+                            var valueColumn = columnName + "Value";
+
+                            if (table.Columns.Contains(hrefColumn)) {
+                                href = tableRow[hrefColumn].ToString();
+                            }
+                            else if (table.Columns.Contains(valueColumn)) {
+                                value = tableRow[valueColumn].ToString();
+                                if (value.IsImage()) {
+                                    href = value;
+                                    value = null;
+                                }
+                            }
                         }
-                        if (!string.IsNullOrEmpty(href)) {
-                            node.SetValue(value);
+
+                        // special treatment for rating columns
+                        /*
+                            <RatingAvgCatering>
+                                <RatingAvgCateringGraphic href="file://Bilder/Balken_50.ai" />
+                                5,0
+                            </RatingAvgCatering>
+                         */
+                        if (columnName.StartsWith("RatingAvg") && columnName != "RatingAvgOverall") {
+                            // text is something like balken_39.ai
+                            // extract rating value from it
+                            var ratingValue = text.Substring(7, 2).Insert(1, ".");
+                            href = "file://Bilder/" + text;
+                            var graphicNode = columnName + "Graphic";
+
+                            node.SetValue(ratingValue);
+                            node.AddFirst(new XElement(XName.Get(graphicNode), new XAttribute(XName.Get("href"), href)));
+                        }
+                        // verschachtelter Knoten
+                        /*
+                            <Imbiss>
+                                Imbiss am Platz
+                                <Imbiss href="file://Bilder/Yes.ai" />
+                            </Imbiss>
+                         */
+                        else if (href != null) {
+                            href = "file://Bilder/" + href;
+                            node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
                         }
                         else {
-                            if (value.EndsWith(".ai")) {
-                                node.SetAttributeValue(XName.Get("href"), value);
+                            if (text.IsImage()) {
+                                // prepend file path
+                                text = "file://Bilder/" + text;
+                                node.SetAttributeValue(XName.Get("href"), text);
                             }
                             else {
-                                node.Value = value;
+                                // append value after TAB
+                                if (value != null) {
+                                    text += "\t" + value;
+                                }
+                                node.Value = text;
                             }
                         }
                         Console.WriteLine();
@@ -74,6 +123,12 @@ namespace CampingInfoCsvToXml {
 
                 yield return xDocument;
             }
+        }
+    }
+
+    public static class StringExtensions {
+        public static bool IsImage(this string value) {
+            return value != null && value.EndsWith(".ai");
         }
     }
 }
