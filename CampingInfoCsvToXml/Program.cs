@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CampingInfoCsvToXml {
     internal class Program {
@@ -18,7 +19,14 @@ namespace CampingInfoCsvToXml {
 
             var counter = 1;
             foreach (var cpXml in result) {
-                File.WriteAllText(counter + ".xml", cpXml.ToString(), Encoding.UTF8);
+                var contents = cpXml.ToString();
+                contents = Regex.Replace(contents, "\r\n +", "")
+                    .Replace("</Street><StreetNo>", "</Street> <StreetNo>")
+                    .Replace("</ZipCode><Town>", "</ZipCode> <Town>")
+                    .Replace("</GeoLatitude><GeoLongitude>", "</GeoLatitude>&#x20;&#x20;<GeoLongitude>")
+                    .Replace("/><Fkk", "/>&#x20;&#x20;<Fkk");
+                contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
+                File.WriteAllText(counter + ".xml", contents, Encoding.UTF8);
                 counter++;
             }
         }
