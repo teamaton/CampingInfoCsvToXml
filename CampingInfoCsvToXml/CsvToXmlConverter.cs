@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -29,10 +30,15 @@ namespace CampingInfoCsvToXml {
         }
 
         public IEnumerable<XDocument> Process(string csvFilePath) {
+            var stopwatchTotal = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
             var table = CommonEngine.CsvToDataTable(csvFilePath, ';');
+            stopwatch.Stop();
+            Console.WriteLine("### importing csv data took: {0}ms", stopwatch.ElapsedMilliseconds);
             var columns = table.Columns;
 
             foreach (DataRow tableRow in table.Rows) {
+                stopwatch = Stopwatch.StartNew();
                 if (columns.Contains("Name")) {
                     Console.WriteLine("processing campsite: \"{0}\"", tableRow["Name"]);
                 }
@@ -54,6 +60,7 @@ namespace CampingInfoCsvToXml {
                         }
                     }
                     else {
+                        Console.WriteLine();
                         var text = tableRow[columnName].ToString();
                         string href = null;
                         string value = null;
@@ -115,12 +122,17 @@ namespace CampingInfoCsvToXml {
                                 node.SetValue(text);
                             }
                         }
-                        Console.WriteLine();
                     }
                 }
 
+                stopwatch.Stop();
+                Console.WriteLine("### processing campsite took: {0}ms", stopwatch.ElapsedMilliseconds);
+
                 yield return xDocument;
             }
+
+            stopwatchTotal.Stop();
+            Console.WriteLine("### processing all campsites took: {0}ms", stopwatchTotal.ElapsedMilliseconds);
         }
     }
 
