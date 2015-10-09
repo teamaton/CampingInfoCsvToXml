@@ -9,6 +9,7 @@ using FileHelpers;
 
 namespace CampingInfoCsvToXml {
     public class CsvToXmlConverter {
+        private const string _xmlTabCode = "&#x9;";
         private readonly XDocument _xDocument;
 
         public CsvToXmlConverter(string xmlTemplate) {
@@ -93,7 +94,7 @@ namespace CampingInfoCsvToXml {
                             href = "file://Bilder/" + text;
                             var graphicNode = columnName + "Graphic";
 
-                            node.SetValue(ratingValue);
+                            node.SetValue(_xmlTabCode + ratingValue);
                             node.AddFirst(new XElement(XName.Get(graphicNode), new XAttribute(XName.Get("href"), href)));
                         }
                         // verschachtelter Knoten
@@ -117,7 +118,7 @@ namespace CampingInfoCsvToXml {
                             else {
                                 // append value after TAB
                                 if (!string.IsNullOrEmpty(value)) {
-                                    text += "\t" + value;
+                                    text += _xmlTabCode + value;
                                 }
                                 node.SetValue(text);
                             }

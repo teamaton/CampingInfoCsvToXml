@@ -20,12 +20,14 @@ namespace CampingInfoCsvToXml {
             var counter = 1;
             foreach (var cpXml in result) {
                 var contents = cpXml.ToString();
-                contents = Regex.Replace(contents, "\r\n +", "")
+                var newLineWithZeroOrMoreSpaces = "\r\n *";
+                contents = Regex.Replace(contents, newLineWithZeroOrMoreSpaces, "")
                     .Replace("</Street><StreetNo>", "</Street> <StreetNo>")
                     .Replace("</ZipCode><Town>", "</ZipCode> <Town>")
                     .Replace("</GeoLatitude><GeoLongitude>", "</GeoLatitude>&#x20;&#x20;<GeoLongitude>")
-                    .Replace("/><Fkk", "/>&#x20;&#x20;<Fkk")
-                    .Replace("lt. Bewertung von ", "\u2029lt. Bewertung von\u2029");
+                    .Replace("><Fkk", ">&#x20;&#x20;<Fkk")
+                    .Replace(" lt. Bewertung von ", "\u2029lt. Bewertung von\u2029")
+                    .Replace("&amp;#x9;", "&#x9;");
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
                 File.WriteAllText(counter + ".xml", contents, Encoding.UTF8);
                 counter++;

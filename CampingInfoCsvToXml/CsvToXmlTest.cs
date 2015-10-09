@@ -138,7 +138,8 @@ namespace CampingInfoCsvToXml {
             var fileName = new FileInfo("tmp.csv").ToString();
             var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4,3</RatingAvgSth>"));
+            Assert.That(xmlResult,
+                Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4,3</RatingAvgSth>"));
         }
 
         [Test]
