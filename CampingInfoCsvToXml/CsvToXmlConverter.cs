@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using FileHelpers;
@@ -108,6 +109,8 @@ namespace CampingInfoCsvToXml {
                             </Imbiss>
                          */
                         else if (!string.IsNullOrEmpty(href)) {
+                            // append TAB after text for Yes/No img
+                            text += new[] { "Yes.ai", "No.ai" }.Contains(href) ? _xmlTabCode : "";
                             href = "file://Bilder/" + href;
                             node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
