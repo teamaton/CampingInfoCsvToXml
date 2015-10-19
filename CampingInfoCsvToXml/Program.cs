@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CampingInfoCsvToXml {
@@ -29,7 +28,7 @@ namespace CampingInfoCsvToXml {
                     .Replace(" lt. Bewertung von ", "\u2029lt. Bewertung von\u2029")
                     .Replace("&amp;#x9;", "&#x9;");
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
-                File.WriteAllText(counter + ".xml", contents, Encoding.UTF8);
+                File.WriteAllText(counter + ".xml", contents);
                 counter++;
             }
         }

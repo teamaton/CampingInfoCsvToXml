@@ -33,6 +33,9 @@ namespace CampingInfoCsvToXml {
         public IEnumerable<XDocument> Process(string csvFilePath) {
             var stopwatchTotal = Stopwatch.StartNew();
             var stopwatch = Stopwatch.StartNew();
+
+            EnsureUtf8Bom(csvFilePath);
+
             var table = CommonEngine.CsvToDataTable(csvFilePath, ';');
             stopwatch.Stop();
             Console.WriteLine("### importing csv data took: {0}ms", stopwatch.ElapsedMilliseconds);
@@ -134,6 +137,19 @@ namespace CampingInfoCsvToXml {
 
             stopwatchTotal.Stop();
             Console.WriteLine("### processing all campsites took: {0}ms", stopwatchTotal.ElapsedMilliseconds);
+        }
+
+        private static void EnsureUtf8Bom(string csvFilePath) {
+            using (var tempStream = File.Open(csvFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {
+                var buffer = new byte[3];
+                var readCount = tempStream.Read(buffer, 0, 3);
+                if (readCount < 3 || buffer[0] != 239 && buffer[0] != 176 && buffer[0] != 180) {
+                    // add the BOM manually
+                    buffer = new byte[] { 239, 176, 180 };
+                    tempStream.Write(buffer, 0, 3);
+                }
+                tempStream.Close();
+            }
         }
     }
 
