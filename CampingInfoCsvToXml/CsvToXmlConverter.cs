@@ -146,12 +146,16 @@ namespace CampingInfoCsvToXml {
             using (var tempStream = File.Open(csvFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {
                 var buffer = new byte[3];
                 var readCount = tempStream.Read(buffer, 0, 3);
-                if (readCount < 3 || buffer[0] != 239 && buffer[0] != 176 && buffer[0] != 180) {
-                    // add the BOM manually
-                    buffer = new byte[] { 239, 176, 180 };
-                    tempStream.Write(buffer, 0, 3);
-                }
                 tempStream.Close();
+                // UTF-8 BOM = 0xEF, 0xBB, 0xBF
+                if (readCount < 3 || buffer[0] != 0xEF || buffer[1] != 0xBB || buffer[2] != 0xBF) {
+                    Console.WriteLine("~~~~~~~~~");
+                    Console.WriteLine("Added BOM");
+                    Console.WriteLine("~~~~~~~~~");
+                    var contents = File.ReadAllText(csvFilePath);
+                    File.WriteAllBytes(csvFilePath, new byte[] { 0xEF, 0xBB, 0xBF });
+                    File.AppendAllText(csvFilePath, contents);
+                }
             }
         }
     }
