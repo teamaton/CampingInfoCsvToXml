@@ -91,7 +91,7 @@ namespace CampingInfoCsvToXml {
                                 5,0
                             </RatingAvgCatering>
                          */
-                        if (columnName.StartsWith("RatingAvg") && columnName != "RatingAvgOverall") {
+                        if (columnName.StartsWith("RatingAvg") && columnName != "RatingAvgOverall" && text.IsImage()) {
                             // text is something like balken_39.ai
                             // extract rating value from it
                             var ratingValue = text.Substring(7, 2).Insert(1, ",");
@@ -99,7 +99,8 @@ namespace CampingInfoCsvToXml {
                             var graphicNode = columnName + "Graphic";
 
                             node.SetValue(_xmlTabCode + ratingValue);
-                            node.AddFirst(new XElement(XName.Get(graphicNode), new XAttribute(XName.Get("href"), href)));
+                            node.AddFirst(new XElement(XName.Get(graphicNode),
+                                new XAttribute(XName.Get("href"), href)));
                         }
                         // verschachtelter Knoten
                         /*
@@ -126,6 +127,8 @@ namespace CampingInfoCsvToXml {
                                 if (!string.IsNullOrEmpty(value)) {
                                     text += _xmlTabCode + value;
                                 }
+
+                                // the last default
                                 node.SetValue(text);
                             }
                         }
