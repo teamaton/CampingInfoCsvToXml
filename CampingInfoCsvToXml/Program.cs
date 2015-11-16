@@ -16,6 +16,8 @@ namespace CampingInfoCsvToXml {
             var converter = new CsvToXmlConverter(xmlTemplateFile);
             var result = converter.Process(args[1]);
 
+            Directory.CreateDirectory("xml");
+
             var counter = 1;
             foreach (var cpXml in result) {
                 var contents = cpXml.ToString();
@@ -28,7 +30,7 @@ namespace CampingInfoCsvToXml {
                     .Replace(" lt. Bewertung von ", "\u2029lt. Bewertung von\u2029")
                     .Replace("&amp;#x9;", "&#x9;");
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
-                File.WriteAllText(counter + ".xml", contents);
+                File.WriteAllText("xml\\" + counter + ".xml", contents);
                 counter++;
             }
         }
