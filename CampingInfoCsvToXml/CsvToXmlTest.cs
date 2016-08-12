@@ -7,7 +7,7 @@ namespace CampingInfoCsvToXml {
     [TestFixture]
     public class CsvToXmlTest {
         [Test]
-        public void convert_url_column_value_to_href_attribute_on_node_in_xml() {
+        public void Convert_url_column_value_to_href_attribute_on_node_in_xml() {
             var csv = "Spalte" + Environment.NewLine + "Wert.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
@@ -21,7 +21,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_simple_column_value_to_text_node_in_xml() {
+        public void Convert_simple_column_value_to_text_node_in_xml() {
             var csv = "Spalte" + Environment.NewLine + "Wert";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
@@ -35,7 +35,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_columns_with_value_and_href_to_correct_xml_nodes() {
+        public void Convert_columns_with_value_and_href_to_correct_xml_nodes() {
             var csv = "Spalte;NochEine" + Environment.NewLine + "Wert;bild.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
@@ -50,7 +50,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_to_text_node_from_xml_file() {
+        public void Convert_column_to_text_node_from_xml_file() {
             var csv = "Spalte" + Environment.NewLine + "Wert";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
@@ -65,7 +65,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_and_image_neighbor_to_nested_node_with_value_and_href() {
+        public void Convert_column_and_image_neighbor_to_nested_node_with_value_and_href() {
             var csv = "Lebensmittelversorgung;LebensmittelversorgungValue" + Environment.NewLine +
                       "Lebensmittel am Platz;Yes.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
@@ -87,7 +87,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_and_value_neighbor_to_nested_node_with_only_value() {
+        public void Convert_column_and_value_neighbor_to_nested_node_with_only_value() {
             var csv = "Lebensmittelversorgung;LebensmittelversorgungValue" + Environment.NewLine +
                       "Lebensmittel am Platz;200 m";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
@@ -106,7 +106,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_and_neighbor_to_node_with_tabbed_text() {
+        public void Convert_column_and_neighbor_to_node_with_tabbed_text() {
             var csv = "Activity1;Activity1Value" + Environment.NewLine +
                       "Schwimmen;55 %";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
@@ -124,7 +124,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_rating_column_to_nested_node_with_graphic_and_value() {
+        public void Convert_rating_column_to_nested_node_with_graphic_and_value() {
             var csv = "RatingAvgSth" + Environment.NewLine +
                       "balken_43.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
@@ -143,7 +143,7 @@ namespace CampingInfoCsvToXml {
         }
 
         [Test]
-        public void convert_column_with_text_and_empty_value_column_to_node_with_text() {
+        public void Convert_column_with_text_and_empty_value_column_to_node_with_text() {
             var csv = "Stars;StarsValue" + Environment.NewLine +
                       "noch keine;";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
