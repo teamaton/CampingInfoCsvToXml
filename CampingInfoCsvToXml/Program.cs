@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CampingInfoCsvToXml {
@@ -29,10 +31,41 @@ namespace CampingInfoCsvToXml {
                     .Replace("><Fkk", ">&#x20;&#x20;<Fkk")
                     .Replace(" lt. Bewertung von ", "\u2029lt. Bewertung von\u2029")
                     .Replace("&amp;#x9;", "&#x9;");
+                foreach (var p in NeedPs) {
+                    contents = contents.Replace(p, p + "\u2029");
+                }
+                foreach (var p in NeedSpaceAndPs) {
+                    contents = contents.Replace(p, p + " \u2029");
+                }
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
                 File.WriteAllText("xml\\" + counter + ".xml", contents);
                 counter++;
             }
         }
+
+        private static readonly List<string> NeedSpaceAndPs = new List<string>
+            {
+            "</SwimmingNature>",
+            "</SwimmingPoolOutdoor>",
+            "</Dogs>",
+            "</Shadow>"
+            };
+
+        private static readonly List<string> NeedPs = new List<string>
+            {
+            "</StreetNo>",
+            "</Town>",
+            "</Region>",
+            "</GeoLongitude>",
+            "</Phone1>",
+            "</Fkk>",
+            "</Lebensmittelversorgung>",
+            "</BreadAtCampsite>",
+            "</Restaurant>",
+            "</Imbiss>",
+            "</CountSpaceTourism>",
+            "</CountRentals>",
+            "</Price1>"
+            };
     }
 }
