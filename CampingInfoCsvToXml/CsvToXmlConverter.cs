@@ -11,6 +11,15 @@ using FileHelpers;
 namespace CampingInfoCsvToXml {
     public class CsvToXmlConverter {
         private const string XmlTabCode = "&#x9;";
+
+        private const string CampsiteImagesPathPrefix =
+            @"file:///X:/camping.info/Campingfuehrer/Deutschland/Import/Bilder-Camping";
+
+        private const string OtherImagesPathPrefix =
+            @"file:///X:/camping.info/Campingfuehrer/Deutschland/Import/Bilder-Allgemein";
+
+        private const string CampsiteFolderColumn = "Pfad";
+
         private readonly XDocument _xDocument;
 
         public CsvToXmlConverter(string xmlTemplate) {
@@ -49,6 +58,8 @@ namespace CampingInfoCsvToXml {
                 }
                 var xDocument = GetFreshDocument();
 
+                var campsiteFolder = tableRow[CampsiteFolderColumn].ToString();
+
                 foreach (var column in columns) {
                     var columnName = column.ToString();
                     Console.Write($"processing column: {columnName}");
@@ -60,6 +71,12 @@ namespace CampingInfoCsvToXml {
                         else if (columnName.EndsWith("Value")) {
                             Console.WriteLine(" - value");
                         }
+                        else if (columnName == CampsiteFolderColumn) {
+                            Console.WriteLine(" - Bilderordner");
+                        }
+                        else if (columnName == "Premium") {
+                            Console.WriteLine(" - Premium");
+                        }
                         else {
                             Console.WriteLine(" - NOT FOUND!");
                         }
@@ -69,6 +86,7 @@ namespace CampingInfoCsvToXml {
                         var text = tableRow[columnName].ToString();
                         string href = null;
                         string value = null;
+                        var valueColumn = columnName + "Value";
 
                         if (dataTable.Columns.Contains(valueColumn)) {
                             var raw = tableRow[valueColumn].ToString();
@@ -91,7 +109,7 @@ namespace CampingInfoCsvToXml {
                             // text is something like balken_39.ai
                             // extract rating value from it
                             var ratingValue = text.Substring(7, 2).Insert(1, ",");
-                            href = "file://Bilder/" + text;
+                            href = GetFullPath(text, campsiteFolder);
                             var graphicNode = columnName + "Graphic";
 
                             node.SetValue(XmlTabCode + ratingValue);
@@ -108,14 +126,14 @@ namespace CampingInfoCsvToXml {
                         else if (!string.IsNullOrEmpty(href)) {
                             // append TAB after text for Yes/No img
                             text += new[] { "Yes.ai", "No.ai" }.Contains(href) ? XmlTabCode : "";
-                            href = "file://Bilder/" + href;
+                            href = GetFullPath(href, campsiteFolder);
                             node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
                         }
                         else {
                             if (text.IsImage()) {
                                 // prepend file path
-                                text = "file://Bilder/" + text;
+                                text = GetFullPath(text, campsiteFolder);
                                 node.SetAttributeValue(XName.Get("href"), text);
                             }
                             else {
@@ -141,6 +159,13 @@ namespace CampingInfoCsvToXml {
             Console.WriteLine($"### processing all campsites took: {stopwatchTotal.ElapsedMilliseconds}ms");
         }
 
+        private static string GetFullPath(string value, string campsiteFolder) {
+            var extension = Path.GetExtension(value);
+            return extension == ".ai"
+                ? $"{OtherImagesPathPrefix}/{value}"
+                : $"{CampsiteImagesPathPrefix}/{campsiteFolder}/{value}";
+        }
+
         private static void EnsureUtf8Bom(string csvFilePath) {
             using (var tempStream = File.Open(csvFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {
                 var buffer = new byte[3];
@@ -160,8 +185,11 @@ namespace CampingInfoCsvToXml {
     }
 
     public static class StringExtensions {
+        private static readonly string[] KnownImageFileExtensions = { ".ai", ".jpg", ".eps" };
+
         public static bool IsImage(this string value) {
-            return value != null && value.EndsWith(".ai");
+            var extension = Path.GetExtension(value);
+            return KnownImageFileExtensions.Contains(extension);
         }
     }
 }
