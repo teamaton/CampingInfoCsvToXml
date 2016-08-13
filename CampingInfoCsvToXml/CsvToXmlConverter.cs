@@ -10,7 +10,7 @@ using FileHelpers;
 
 namespace CampingInfoCsvToXml {
     public class CsvToXmlConverter {
-        private const string _xmlTabCode = "&#x9;";
+        private const string XmlTabCode = "&#x9;";
         private readonly XDocument _xDocument;
 
         public CsvToXmlConverter(string xmlTemplate) {
@@ -37,21 +37,21 @@ namespace CampingInfoCsvToXml {
 
             EnsureUtf8Bom(csvFilePath);
 
-            var table = CommonEngine.CsvToDataTable(csvFilePath, ';');
+            var dataTable = CommonEngine.CsvToDataTable(csvFilePath, ';');
             stopwatch.Stop();
-            Console.WriteLine("### importing csv data took: {0}ms", stopwatch.ElapsedMilliseconds);
-            var columns = table.Columns;
+            Console.WriteLine($"### importing csv data took: {stopwatch.ElapsedMilliseconds}ms");
+            var columns = dataTable.Columns;
 
-            foreach (DataRow tableRow in table.Rows) {
+            foreach (DataRow tableRow in dataTable.Rows) {
                 stopwatch = Stopwatch.StartNew();
                 if (columns.Contains("Name")) {
-                    Console.WriteLine("processing campsite: \"{0}\"", tableRow["Name"]);
+                    Console.WriteLine($"processing campsite: \"{tableRow["Name"]}\"");
                 }
                 var xDocument = GetFreshDocument();
 
                 foreach (var column in columns) {
                     var columnName = column.ToString();
-                    Console.Write("processing column: {0}", columnName);
+                    Console.Write($"processing column: {columnName}");
                     var node = xDocument.XPathSelectElement(".//" + columnName);
                     if (node == null) {
                         if (columnName.EndsWith("Href")) {
@@ -70,17 +70,13 @@ namespace CampingInfoCsvToXml {
                         string href = null;
                         string value = null;
 
-                        {
-                            var valueColumn = columnName + "Value";
-
-                            if (table.Columns.Contains(valueColumn)) {
-                                var raw = tableRow[valueColumn].ToString();
-                                if (raw.IsImage()) {
-                                    href = raw;
-                                }
-                                else {
-                                    value = raw;
-                                }
+                        if (dataTable.Columns.Contains(valueColumn)) {
+                            var raw = tableRow[valueColumn].ToString();
+                            if (raw.IsImage()) {
+                                href = raw;
+                            }
+                            else {
+                                value = raw;
                             }
                         }
 
@@ -98,7 +94,7 @@ namespace CampingInfoCsvToXml {
                             href = "file://Bilder/" + text;
                             var graphicNode = columnName + "Graphic";
 
-                            node.SetValue(_xmlTabCode + ratingValue);
+                            node.SetValue(XmlTabCode + ratingValue);
                             node.AddFirst(new XElement(XName.Get(graphicNode),
                                 new XAttribute(XName.Get("href"), href)));
                         }
@@ -111,7 +107,7 @@ namespace CampingInfoCsvToXml {
                          */
                         else if (!string.IsNullOrEmpty(href)) {
                             // append TAB after text for Yes/No img
-                            text += new[] { "Yes.ai", "No.ai" }.Contains(href) ? _xmlTabCode : "";
+                            text += new[] { "Yes.ai", "No.ai" }.Contains(href) ? XmlTabCode : "";
                             href = "file://Bilder/" + href;
                             node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
@@ -125,7 +121,7 @@ namespace CampingInfoCsvToXml {
                             else {
                                 // append value after TAB
                                 if (!string.IsNullOrEmpty(value)) {
-                                    text += _xmlTabCode + value;
+                                    text += XmlTabCode + value;
                                 }
 
                                 // the last default
@@ -136,13 +132,13 @@ namespace CampingInfoCsvToXml {
                 }
 
                 stopwatch.Stop();
-                Console.WriteLine("### processing campsite took: {0}ms", stopwatch.ElapsedMilliseconds);
+                Console.WriteLine($"### processing campsite took: {stopwatch.ElapsedMilliseconds}ms");
 
                 yield return xDocument;
             }
 
             stopwatchTotal.Stop();
-            Console.WriteLine("### processing all campsites took: {0}ms", stopwatchTotal.ElapsedMilliseconds);
+            Console.WriteLine($"### processing all campsites took: {stopwatchTotal.ElapsedMilliseconds}ms");
         }
 
         private static void EnsureUtf8Bom(string csvFilePath) {

@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CampingInfoCsvToXml {
     internal class Program {
+        /// <summary>
+        /// Paragraph separator.
+        /// </summary>
+        private const char PS = '\u2029';
+
         private static void Main(string[] args) {
             if (args.Length != 2) {
                 Console.WriteLine("Need 2 args: schema file and csv file");
@@ -13,8 +17,8 @@ namespace CampingInfoCsvToXml {
             }
 
             var xmlTemplateFile = new FileInfo(args[0]);
-            Console.WriteLine("Using: {0}", xmlTemplateFile);
-            Console.WriteLine("Data : {0}", new FileInfo(args[1]));
+            Console.WriteLine($"Using: {xmlTemplateFile}");
+            Console.WriteLine($"Data : {new FileInfo(args[1])}");
             var converter = new CsvToXmlConverter(xmlTemplateFile);
             var result = converter.Process(args[1]);
 
@@ -29,13 +33,13 @@ namespace CampingInfoCsvToXml {
                     .Replace("</ZipCode><Town>", "</ZipCode> <Town>")
                     .Replace("</GeoLatitude><GeoLongitude>", "</GeoLatitude>&#x20;&#x20;<GeoLongitude>")
                     .Replace("><Fkk", ">&#x20;&#x20;<Fkk")
-                    .Replace(" lt. Bewertung von ", "\u2029lt. Bewertung von\u2029")
+                    .Replace(" lt. Bewertung von ", PS + "lt. Bewertung von" + PS)
                     .Replace("&amp;#x9;", "&#x9;");
                 foreach (var p in NeedPs) {
-                    contents = contents.Replace(p, p + "\u2029");
+                    contents = contents.Replace(p, p + PS);
                 }
                 foreach (var p in NeedSpaceAndPs) {
-                    contents = contents.Replace(p, p + " \u2029");
+                    contents = contents.Replace(p, p + " " + PS);
                 }
                 contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + contents;
                 File.WriteAllText("xml\\" + counter + ".xml", contents);
