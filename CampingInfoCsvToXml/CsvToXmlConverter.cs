@@ -116,6 +116,34 @@ namespace CampingInfoCsvToXml {
                             node.AddFirst(new XElement(XName.Get(graphicNode),
                                 new XAttribute(XName.Get("href"), href)));
                         }
+                        // Besonderheit: 1. o 2 Kindknoten im verschachtelten Knoten
+                        /*
+                            <SwimmingPoolOutdoor>
+                                Pool / Hallenbad&#x9;
+                                <SwimmingPoolOutdoor href="No.ai" />
+                                / <SwimmingPoolOutdoor href="Yes.ai" />
+                            </SwimmingPoolOutdoor>
+                         */
+                        else if (columnName == "SwimmingPoolOutdoor") {
+                            // Pool (&|/) Hallenbad
+                            text += XmlTabCode;
+                            node.SetValue(text);
+                            var values =
+                                tableRow[columnName + "Value"].ToString().Split('/').Select(s => s.Trim()).ToArray();
+                            for (var i = 0; i < values.Length; i++) {
+                                if (i > 0) {
+                                    node.Add(" / ");
+                                }
+                                value = values[i];
+                                if (value.IsImage()) {
+                                    node.Add(new XElement(XName.Get(columnName),
+                                        new XAttribute(XName.Get("href"), value)));
+                                }
+                                else {
+                                    node.Add(value);
+                                }
+                            }
+                        }
                         // verschachtelter Knoten
                         /*
                             <Imbiss>
