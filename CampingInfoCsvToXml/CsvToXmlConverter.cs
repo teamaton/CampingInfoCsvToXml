@@ -58,7 +58,9 @@ namespace CampingInfoCsvToXml {
                 }
                 var xDocument = GetFreshDocument();
 
-                var campsiteFolder = tableRow[CampsiteFolderColumn].ToString();
+                var campsiteFolder = columns.Contains(CampsiteFolderColumn)
+                    ? tableRow[CampsiteFolderColumn].ToString()
+                    : null;
 
                 foreach (var column in columns) {
                     var columnName = column.ToString();
