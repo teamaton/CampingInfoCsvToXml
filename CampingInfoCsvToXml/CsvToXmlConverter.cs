@@ -85,6 +85,10 @@ namespace CampingInfoCsvToXml {
                     }
                     else {
                         Console.WriteLine();
+
+                        // remove node content and attributes from example file
+                        node.RemoveAll();
+
                         var text = tableRow[columnName].ToString();
                         string href = null;
                         string value = null;
