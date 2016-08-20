@@ -122,7 +122,7 @@ namespace CampingInfoCsvToXml {
                             node.AddFirst(new XElement(XName.Get(graphicNode),
                                 new XAttribute(XName.Get("href"), href)));
                         }
-                        // Besonderheit: 1. o 2 Kindknoten im verschachtelten Knoten
+                        // Besonderheit: 1 o. 2 Kindknoten im verschachtelten Knoten
                         /*
                             <SwimmingPoolOutdoor>
                                 Pool / Hallenbad&#x9;
@@ -142,6 +142,7 @@ namespace CampingInfoCsvToXml {
                                 }
                                 value = values[i];
                                 if (value.IsImage()) {
+                                    value = GetFullPath(value, campsiteFolder);
                                     node.Add(new XElement(XName.Get(columnName),
                                         new XAttribute(XName.Get("href"), value)));
                                 }
