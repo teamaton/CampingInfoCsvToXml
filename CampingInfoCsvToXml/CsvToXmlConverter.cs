@@ -216,8 +216,7 @@ namespace CampingInfoCsvToXml {
         private static readonly string[] KnownImageFileExtensions = { ".ai", ".jpg", ".eps" };
 
         public static bool IsImage(this string value) {
-            var extension = Path.GetExtension(value);
-            return KnownImageFileExtensions.Contains(extension);
+            return KnownImageFileExtensions.Any(value.EndsWith);
         }
     }
 }
