@@ -13,10 +13,10 @@ namespace CampingInfoCsvToXml {
         private const string XmlTabCode = "&#x9;";
 
         private const string CampsiteImagesPathPrefix =
-            @"file:///X:/camping.info/Campingfuehrer/Deutschland/Import/Bilder-Camping";
+            @"file:///X:/camping.info/Campingfuehrer/Rund-um-die-Alpen/Import/Bilder-Camping";
 
         private const string OtherImagesPathPrefix =
-            @"file:///X:/camping.info/Campingfuehrer/Deutschland/Import/Bilder-Allgemein";
+            @"file:///X:/camping.info/Campingfuehrer/Rund-um-die-Alpen/Import/Bilder-Allgemein";
 
         private const string CampsiteFolderColumn = "Pfad";
 
@@ -26,10 +26,8 @@ namespace CampingInfoCsvToXml {
             _xDocument = XDocument.Parse(xmlTemplate);
         }
 
-        public CsvToXmlConverter(FileInfo xmlTemplateFile) {
-            using (var stream = File.OpenRead(xmlTemplateFile.ToString())) {
-                _xDocument = XDocument.Load(stream);
-            }
+        public CsvToXmlConverter(FileInfo xmlTemplateFile)
+            : this(File.ReadAllText(xmlTemplateFile.FullName)) {
         }
 
         private XDocument GetFreshDocument() {
@@ -130,7 +128,7 @@ namespace CampingInfoCsvToXml {
                                 / <SwimmingPoolOutdoor href="Yes.ai" />
                             </SwimmingPoolOutdoor>
                          */
-                        else if (columnName == "SwimmingPoolOutdoor") {
+                        else if (columnName == "SwimmingPoolOutdoor" || columnName == "Ski" || columnName == "Restaurant") {
                             // Pool (&|/) Hallenbad
                             text += XmlTabCode;
                             node.SetValue(text);
