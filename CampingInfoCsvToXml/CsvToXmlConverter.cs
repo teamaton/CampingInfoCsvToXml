@@ -26,7 +26,7 @@ namespace CampingInfoCsvToXml {
             _xDocument = XDocument.Parse(xmlTemplate);
         }
 
-        public CsvToXmlConverter(FileInfo xmlTemplateFile)
+        public CsvToXmlConverter(FileSystemInfo xmlTemplateFile)
             : this(File.ReadAllText(xmlTemplateFile.FullName)) {
         }
 
@@ -128,7 +128,8 @@ namespace CampingInfoCsvToXml {
                                 / <SwimmingPoolOutdoor href="Yes.ai" />
                             </SwimmingPoolOutdoor>
                          */
-                        else if (columnName == "SwimmingPoolOutdoor" || columnName == "Ski" || columnName == "Restaurant") {
+                        else if (columnName == "SwimmingPoolOutdoor" || columnName == "Ski" ||
+                                 columnName == "Restaurant") {
                             // Pool (&|/) Hallenbad
                             text += XmlTabCode;
                             node.SetValue(text);
