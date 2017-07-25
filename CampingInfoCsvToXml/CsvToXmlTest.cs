@@ -14,8 +14,9 @@ namespace CampingInfoCsvToXml {
 <cell><Spalte /></cell>
 </Root>";
             File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
             var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(xml).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file://Bilder/Wert.ai\" />"));
         }
@@ -28,8 +29,9 @@ namespace CampingInfoCsvToXml {
 <cell><Spalte /></cell>
 </Root>";
             File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
             var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(xml).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
         }
@@ -42,8 +44,9 @@ namespace CampingInfoCsvToXml {
 <cell><Spalte /><NochEine /></cell>
 </Root>";
             File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
             var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(xml).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
             Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file://Bilder/bild.ai\" />"));

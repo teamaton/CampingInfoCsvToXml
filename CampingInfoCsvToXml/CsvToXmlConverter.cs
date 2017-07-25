@@ -22,12 +22,8 @@ namespace CampingInfoCsvToXml {
 
         private readonly XDocument _xDocument;
 
-        public CsvToXmlConverter(string xmlTemplate) {
-            _xDocument = XDocument.Parse(xmlTemplate);
-        }
-
-        public CsvToXmlConverter(FileSystemInfo xmlTemplateFile)
-            : this(File.ReadAllText(xmlTemplateFile.FullName)) {
+        public CsvToXmlConverter(FileSystemInfo xmlTemplateFile) {
+            _xDocument = XDocument.Parse(File.ReadAllText(xmlTemplateFile.FullName));
         }
 
         private XDocument GetFreshDocument() {
