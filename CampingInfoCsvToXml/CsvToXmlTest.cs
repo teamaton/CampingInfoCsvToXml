@@ -6,8 +6,22 @@ using NUnit.Framework;
 namespace CampingInfoCsvToXml {
     [TestFixture]
     public class CsvToXmlTest {
+        private Options _options;
+        private static readonly string Tab = CsvToXmlConverter.XmlTabCode.Replace("&", "&amp;");
+
+        [SetUp]
+        public void SetUp() {
+            _options = new Options
+                {
+                XmlTemplateFile = new FileInfo("tmp.xml"),
+                CsvDataFile = new FileInfo("tmp.csv"),
+                ImagesRootFolder = new Uri("file:///c:/"),
+                CampsiteFolderColumn = "Pfad"
+                };
+        }
+
         [Test]
-        public void Convert_url_column_value_to_href_attribute_on_node_in_xml() {
+        public void Convert_image_column_value_to_href_attribute_in_xml() {
             var csv = "Spalte" + Environment.NewLine + "Wert.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
@@ -15,10 +29,9 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file://Bilder/Wert.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file:///c:/Bilder-Allgemein/Wert.ai\" />"));
         }
 
         [Test]
@@ -30,8 +43,7 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
         }
@@ -45,11 +57,10 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
-            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file://Bilder/bild.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file:///c:/Bilder-Allgemein/bild.ai\" />"));
         }
 
         [Test]
@@ -61,8 +72,7 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
         }
@@ -76,17 +86,17 @@ namespace CampingInfoCsvToXml {
   <cell>
     <Lebensmittelversorgung>
       Lebensmittel am Platz
-      <Lebensmittelversorgung href=""file://Bilder/Yes.ai"" />
+      <Lebensmittelversorgung href=""file:///c:/some-other-path/Yes.ai"" />
     </Lebensmittelversorgung>
   </cell>
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining(
-                @"<Lebensmittelversorgung>Lebensmittel am Platz<Lebensmittelversorgung href=""file://Bilder/Yes.ai"" /></Lebensmittelversorgung>"));
+                $@"<Lebensmittelversorgung>Lebensmittel am Platz{Tab}<Lebensmittelversorgung " +
+                @"href=""file:///c:/Bilder-Allgemein/Yes.ai"" /></Lebensmittelversorgung>"));
         }
 
         [Test]
@@ -101,11 +111,10 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining(
-                "<Lebensmittelversorgung>Lebensmittel am Platz\t200 m</Lebensmittelversorgung>"));
+                $@"<Lebensmittelversorgung>Lebensmittel am Platz{Tab}200 m</Lebensmittelversorgung>"));
         }
 
         [Test]
@@ -120,10 +129,9 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining("<Activity1>Schwimmen\t55 %</Activity1>"));
+            Assert.That(xmlResult, Is.StringContaining($"<Activity1>Schwimmen{Tab}55 %</Activity1>"));
         }
 
         [Test]
@@ -138,11 +146,10 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult,
-                Is.StringContaining(@"<RatingAvgSthGraphic href=""file://Bilder/balken_43.ai"" />4,3</RatingAvgSth>"));
+            Assert.That(xmlResult, Is.StringContaining(
+                $@"<RatingAvgSthGraphic href=""file:///c:/Bilder-Allgemein/balken_43.ai"" />{Tab}4,3</RatingAvgSth>"));
         }
 
         [Test]
@@ -157,8 +164,7 @@ namespace CampingInfoCsvToXml {
 </Root>";
             File.WriteAllText("tmp.csv", csv);
             File.WriteAllText("tmp.xml", xml);
-            var fileName = new FileInfo("tmp.csv").ToString();
-            var xmlResult = new CsvToXmlConverter(new FileInfo("tmp.xml")).Process(fileName).First().ToString();
+            var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Stars>noch keine</Stars>"));
         }

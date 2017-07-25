@@ -10,20 +10,29 @@ using FileHelpers;
 
 namespace CampingInfoCsvToXml {
     public class CsvToXmlConverter {
-        private const string XmlTabCode = "&#x9;";
+        internal const string XmlTabCode = "&#x9;";
+        private readonly Options _options;
 
-        private const string CampsiteImagesPathPrefix =
-            @"file:///X:/camping.info/Campingfuehrer/Rund-um-die-Alpen/Import/Bilder-Camping";
+        private string CampsiteImagesPathPrefix
+        {
+            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Camping"; }
+        }
 
-        private const string OtherImagesPathPrefix =
-            @"file:///X:/camping.info/Campingfuehrer/Rund-um-die-Alpen/Import/Bilder-Allgemein";
+        private string OtherImagesPathPrefix
+        {
+            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Allgemein"; }
+        }
 
-        private const string CampsiteFolderColumn = "Pfad";
+        private string CampsiteFolderColumn
+        {
+            get { return _options.CampsiteFolderColumn; }
+        }
 
         private readonly XDocument _xDocument;
 
-        public CsvToXmlConverter(FileSystemInfo xmlTemplateFile) {
-            _xDocument = XDocument.Parse(File.ReadAllText(xmlTemplateFile.FullName));
+        public CsvToXmlConverter(Options options) {
+            _options = options;
+            _xDocument = XDocument.Parse(File.ReadAllText(options.XmlTemplateFile.FullName));
         }
 
         private XDocument GetFreshDocument() {
@@ -34,10 +43,11 @@ namespace CampingInfoCsvToXml {
             }
         }
 
-        public IEnumerable<XDocument> Process(string csvFilePath) {
+        public IEnumerable<XDocument> Process() {
             var stopwatchTotal = Stopwatch.StartNew();
             var stopwatch = Stopwatch.StartNew();
 
+            var csvFilePath = _options.CsvDataFile.FullName;
             EnsureUtf8Bom(csvFilePath);
 
             var dataTable = CommonEngine.CsvToDataTable(csvFilePath, ';');
@@ -189,7 +199,7 @@ namespace CampingInfoCsvToXml {
             Console.WriteLine($"### processing all campsites took: {stopwatchTotal.ElapsedMilliseconds}ms");
         }
 
-        private static string GetFullPath(string value, string campsiteFolder) {
+        private string GetFullPath(string value, string campsiteFolder) {
             var extension = Path.GetExtension(value);
             return extension == ".ai"
                 ? $"{OtherImagesPathPrefix}/{value}"

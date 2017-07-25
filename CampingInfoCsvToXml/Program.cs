@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using CommandLine;
+using CommandLine.Text;
 
 namespace CampingInfoCsvToXml {
     internal class Program {
@@ -12,21 +14,24 @@ namespace CampingInfoCsvToXml {
         private const string NewLineWithZeroOrMoreSpaces = "\r\n *";
 
         private static void Main(string[] args) {
-            if (args.Length != 2) {
-                Console.WriteLine("Need 2 args: schema file and csv file");
+            var options = new Options();
+
+            var parserResult = Parser.Default.ParseArguments(() => options, args);
+
+            if (parserResult.Tag == ParserResultType.NotParsed) {
+                HelpText.RenderUsageText(parserResult);
                 return;
             }
 
-            var xmlTemplateFile = new FileInfo(args[0]);
-            var csvDataFile = new FileInfo(args[1]);
-            var destination = $"xml_{SafeName(xmlTemplateFile)}_{SafeName(csvDataFile)}";
+            var destination = $"xml_{SafeName(options.XmlTemplateFile)}_{SafeName(options.CsvDataFile)}";
             Directory.CreateDirectory(destination);
-            Console.WriteLine($"Using: {xmlTemplateFile}");
-            Console.WriteLine($"Data : {csvDataFile}");
-            Console.WriteLine($"Dest.: {destination}");
+            Console.WriteLine($"Template: {options.XmlTemplateFile}");
+            Console.WriteLine($"Csv Data: {options.CsvDataFile}");
+            Console.WriteLine($"ImageDir: {options.ImagesRootFolder}");
+            Console.WriteLine($"  Output: {destination}");
 
-            var converter = new CsvToXmlConverter(xmlTemplateFile);
-            var result = converter.Process(csvDataFile.FullName);
+            var converter = new CsvToXmlConverter(options);
+            var result = converter.Process();
 
             var counter = 1;
             foreach (var cpXml in result) {
