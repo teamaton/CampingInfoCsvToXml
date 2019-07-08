@@ -201,9 +201,10 @@ namespace CampingInfoCsvToXml {
 
         private string GetFullPath(string value, string campsiteFolder) {
             var extension = Path.GetExtension(value);
-            return extension == ".ai"
-                ? $"{OtherImagesPathPrefix}/{value}"
-                : $"{CampsiteImagesPathPrefix}/{campsiteFolder}/{value}";
+            var paths = extension == ".ai" || value.StartsWith("stars")
+                ? new[] { OtherImagesPathPrefix, value }
+                : new[] { CampsiteImagesPathPrefix, campsiteFolder, value };
+            return string.Join("/", paths.Where(p => !string.IsNullOrEmpty(p)));
         }
 
         private static void EnsureUtf8Bom(string csvFilePath) {
