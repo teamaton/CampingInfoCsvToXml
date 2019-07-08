@@ -12,6 +12,7 @@ namespace CampingInfoCsvToXml {
         private const char PS = '\u2029';
 
         private const string NewLineWithZeroOrMoreSpaces = "\r\n *";
+        private const string SpaceBeetweenTags = ">[\r\n ]+<";
 
         private static void Main(string[] args) {
             var options = new Options();
@@ -36,7 +37,8 @@ namespace CampingInfoCsvToXml {
             var counter = 1;
             foreach (var cpXml in result) {
                 var contents = cpXml.ToString();
-                contents = Regex.Replace(contents, NewLineWithZeroOrMoreSpaces, "")
+                contents = //Regex.Replace(contents, NewLineWithZeroOrMoreSpaces, "")
+                contents = Regex.Replace(contents, SpaceBeetweenTags, "><")
                     .Replace("</Street><StreetNo>", "</Street> <StreetNo>")
                     .Replace("</ZipCode><Town>", "</ZipCode> <Town>")
                     .Replace("</GeoLatitude><GeoLongitude>", "</GeoLatitude>&#x20;&#x20;<GeoLongitude>")
