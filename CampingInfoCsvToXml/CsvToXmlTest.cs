@@ -168,5 +168,32 @@ namespace CampingInfoCsvToXml {
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Stars>noch keine</Stars>"));
         }
+
+        [Test]
+        public void Convert_text_with_newlines_to_node_with_text_with_newlines() {
+            var csv = "Id;Description" + Environment.NewLine +
+                      @"2;""Wunderschön!
+
+Was soll ich sagen?
+
+Einfach toll!!!""";
+            var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Root>
+  <cell>
+    <Description />
+  </cell>
+</Root>";
+            File.WriteAllText("tmp.csv", csv);
+            File.WriteAllText("tmp.xml", xml);
+            var xmlResult = new CsvToXmlConverter(_options).Process().First();
+            Console.WriteLine(xmlResult);
+            var expected = @"<Description>Wunderschön!
+
+Was soll ich sagen?
+
+Einfach toll!!!</Description>";
+            Assert.That(xmlResult.ToString(), Is.StringContaining(expected));
+            xmlResult.Save("result.xml");
+        }
     }
 }
