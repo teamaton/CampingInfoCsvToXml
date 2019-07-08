@@ -15,12 +15,12 @@ namespace CampingInfoCsvToXml {
 
         private string CampsiteImagesPathPrefix
         {
-            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Camping"; }
+            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Hotels"; }
         }
 
         private string OtherImagesPathPrefix
         {
-            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Allgemein"; }
+            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Layout"; }
         }
 
         private string CampsiteFolderColumn

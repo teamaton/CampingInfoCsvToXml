@@ -31,7 +31,7 @@ namespace CampingInfoCsvToXml {
             File.WriteAllText("tmp.xml", xml);
             var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
-            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file:///c:/Bilder-Allgemein/Wert.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<Spalte href=\"file:///c:/Bilder-Layout/Wert.ai\" />"));
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace CampingInfoCsvToXml {
             var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining("<Spalte>Wert</Spalte>"));
-            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file:///c:/Bilder-Allgemein/bild.ai\" />"));
+            Assert.That(xmlResult, Is.StringContaining("<NochEine href=\"file:///c:/Bilder-Layout/bild.ai\" />"));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace CampingInfoCsvToXml {
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining(
                 $@"<Lebensmittelversorgung>Lebensmittel am Platz{Tab}<Lebensmittelversorgung " +
-                @"href=""file:///c:/Bilder-Allgemein/Yes.ai"" /></Lebensmittelversorgung>"));
+                @"href=""file:///c:/Bilder-Layout/Yes.ai"" /></Lebensmittelversorgung>"));
         }
 
         [Test]
@@ -149,7 +149,7 @@ namespace CampingInfoCsvToXml {
             var xmlResult = new CsvToXmlConverter(_options).Process().First().ToString();
             Console.WriteLine(xmlResult);
             Assert.That(xmlResult, Is.StringContaining(
-                $@"<RatingAvgSthGraphic href=""file:///c:/Bilder-Allgemein/balken_43.ai"" />{Tab}4,3</RatingAvgSth>"));
+                $@"<RatingAvgSthGraphic href=""file:///c:/Bilder-Layout/balken_43.ai"" />{Tab}4,3</RatingAvgSth>"));
         }
 
         [Test]
