@@ -13,20 +13,9 @@ namespace CampingInfoCsvToXml {
         internal const string XmlTabCode = "&#x9;";
         private readonly Options _options;
 
-        private string CampsiteImagesPathPrefix
-        {
-            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Hotels"; }
-        }
+        private string ImagePathPrefix => _options.ImagesRootFolder.ToString().TrimEnd('/');
 
-        private string OtherImagesPathPrefix
-        {
-            get { return _options.ImagesRootFolder.ToString().TrimEnd('/') + "/Bilder-Layout"; }
-        }
-
-        private string CampsiteFolderColumn
-        {
-            get { return _options.CampsiteFolderColumn; }
-        }
+        private string FolderColumn => _options.FolderColumn;
 
         private readonly XDocument _xDocument;
 
@@ -58,12 +47,12 @@ namespace CampingInfoCsvToXml {
             foreach (DataRow tableRow in dataTable.Rows) {
                 stopwatch = Stopwatch.StartNew();
                 if (columns.Contains("Name")) {
-                    Console.WriteLine($"processing campsite: \"{tableRow["Name"]}\"");
+                    Console.WriteLine($"processing row: \"{tableRow["Name"]}\"");
                 }
                 var xDocument = GetFreshDocument();
 
-                var campsiteFolder = columns.Contains(CampsiteFolderColumn)
-                    ? tableRow[CampsiteFolderColumn].ToString()
+                var folder = columns.Contains(FolderColumn)
+                    ? tableRow[FolderColumn].ToString()
                     : null;
 
                 foreach (var column in columns) {
@@ -77,7 +66,7 @@ namespace CampingInfoCsvToXml {
                         else if (columnName.EndsWith("Value")) {
                             Console.WriteLine(" - value");
                         }
-                        else if (columnName == CampsiteFolderColumn) {
+                        else if (columnName == FolderColumn) {
                             Console.WriteLine(" - Bilderordner");
                         }
                         else if (columnName == "Premium") {
@@ -116,10 +105,11 @@ namespace CampingInfoCsvToXml {
                             </RatingAvgCatering>
                          */
                         if (columnName.StartsWith("RatingAvg") && columnName != "RatingAvgOverall" && text.IsImage()) {
-                            // text is something like balken_39.ai
+                            // text is something like folder/balken_39.ai
                             // extract rating value from it
-                            var ratingValue = text.Substring(7, 2).Insert(1, ",");
-                            href = GetFullPath(text, campsiteFolder);
+                            var idxOfUnderscore = text.LastIndexOf('_');
+                            var ratingValue = text.Substring(idxOfUnderscore + 1, 2).Insert(1, ",");
+                            href = GetFullPath(text, folder);
                             var graphicNode = columnName + "Graphic";
 
                             node.SetValue(XmlTabCode + ratingValue);
@@ -147,7 +137,7 @@ namespace CampingInfoCsvToXml {
                                 }
                                 value = values[i];
                                 if (value.IsImage()) {
-                                    value = GetFullPath(value, campsiteFolder);
+                                    value = GetFullPath(value, folder);
                                     node.Add(new XElement(XName.Get(columnName),
                                         new XAttribute(XName.Get("href"), value)));
                                 }
@@ -165,15 +155,15 @@ namespace CampingInfoCsvToXml {
                          */
                         else if (!string.IsNullOrEmpty(href)) {
                             // append TAB after text for Yes/No img
-                            text += new[] { "Yes.ai", "No.ai" }.Contains(href) ? XmlTabCode : "";
-                            href = GetFullPath(href, campsiteFolder);
+                            text += href.EndsWith("Yes.ai") || href.EndsWith("No.ai") ? XmlTabCode : "";
+                            href = GetFullPath(href, folder);
                             node.SetValue(text);
                             node.Add(new XElement(XName.Get(columnName), new XAttribute(XName.Get("href"), href)));
                         }
                         else {
                             if (text.IsImage()) {
                                 // prepend file path
-                                text = GetFullPath(text, campsiteFolder);
+                                text = GetFullPath(text, folder);
                                 node.SetAttributeValue(XName.Get("href"), text);
                             }
                             else {
@@ -190,20 +180,17 @@ namespace CampingInfoCsvToXml {
                 }
 
                 stopwatch.Stop();
-                Console.WriteLine($"### processing campsite took: {stopwatch.ElapsedMilliseconds}ms");
+                Console.WriteLine($"### processing row took: {stopwatch.ElapsedMilliseconds}ms");
 
                 yield return xDocument;
             }
 
             stopwatchTotal.Stop();
-            Console.WriteLine($"### processing all campsites took: {stopwatchTotal.ElapsedMilliseconds}ms");
+            Console.WriteLine($"### processing all rows took: {stopwatchTotal.ElapsedMilliseconds}ms");
         }
 
-        private string GetFullPath(string value, string campsiteFolder) {
-            var extension = Path.GetExtension(value);
-            var paths = extension == ".ai" || value.StartsWith("stars")
-                ? new[] { OtherImagesPathPrefix, value }
-                : new[] { CampsiteImagesPathPrefix, campsiteFolder, value };
+        private string GetFullPath(string value, string folder) {
+            var paths = new[] { ImagePathPrefix, folder, value.TrimStart('/') };
             return string.Join("/", paths.Where(p => !string.IsNullOrEmpty(p)));
         }
 

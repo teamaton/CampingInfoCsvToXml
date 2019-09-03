@@ -19,6 +19,6 @@ namespace CampingInfoCsvToXml {
         [Option('c', "foldercolumn", Default = "Pfad",
             HelpText =
                 "The name of the column in the CSV file that contains a relative path for Campsite specific pictures.")]
-        public string CampsiteFolderColumn { get; set; }
+        public string FolderColumn { get; set; }
     }
 }

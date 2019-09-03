@@ -16,13 +16,13 @@ namespace CampingInfoCsvToXml {
                 XmlTemplateFile = new FileInfo("tmp.xml"),
                 CsvDataFile = new FileInfo("tmp.csv"),
                 ImagesRootFolder = new Uri("file:///c:/"),
-                CampsiteFolderColumn = "Pfad"
+                FolderColumn = "Pfad"
                 };
         }
 
         [Test]
         public void Convert_image_column_value_to_href_attribute_in_xml() {
-            var csv = "Spalte" + Environment.NewLine + "Wert.ai";
+            var csv = "Spalte" + Environment.NewLine + "Bilder-Layout/Wert.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
 <cell><Spalte /></cell>
@@ -50,7 +50,7 @@ namespace CampingInfoCsvToXml {
 
         [Test]
         public void Convert_columns_with_value_and_href_to_correct_xml_nodes() {
-            var csv = "Spalte;NochEine" + Environment.NewLine + "Wert;bild.ai";
+            var csv = "Spalte;NochEine" + Environment.NewLine + "Wert;Bilder-Layout/bild.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
 <cell><Spalte /><NochEine /></cell>
@@ -80,7 +80,7 @@ namespace CampingInfoCsvToXml {
         [Test]
         public void Convert_column_and_image_neighbor_to_nested_node_with_value_and_href() {
             var csv = "Lebensmittelversorgung;LebensmittelversorgungValue" + Environment.NewLine +
-                      "Lebensmittel am Platz;Yes.ai";
+                      "Lebensmittel am Platz;/Bilder-Layout/Yes.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
   <cell>
@@ -137,7 +137,7 @@ namespace CampingInfoCsvToXml {
         [Test]
         public void Convert_rating_column_to_nested_node_with_graphic_and_value() {
             var csv = "RatingAvgSth" + Environment.NewLine +
-                      "balken_43.ai";
+                      "Bilder-Layout/balken_43.ai";
             var xml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Root>
   <cell>
