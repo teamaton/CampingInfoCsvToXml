@@ -213,10 +213,11 @@ namespace CampingInfoCsvToXml {
     }
 
     public static class StringExtensions {
-        private static readonly string[] KnownImageFileExtensions = { ".ai", ".jpg", ".eps", ".pdf" };
+        private static readonly string[] KnownImageFileExtensions =
+            { ".ai", ".eps", ".jpeg", ".jpg", ".pdf", ".png", ".psd", ".tif", ".tiff" };
 
         public static bool IsImage(this string value) {
-            return KnownImageFileExtensions.Any(value.EndsWith);
+            return KnownImageFileExtensions.Any(ext => value.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
